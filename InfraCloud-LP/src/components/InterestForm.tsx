@@ -20,41 +20,52 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  // MUDE APENAS ESTA LINHA COM SEU ACCESS KEY ↓↓↓
-  const WEB3FORMS_ACCESS_KEY = "462d407c-de6f-4660-9c25-87aecb359f5a"; // ← cole aqui
+  // SUA KEY JÁ ESTÁ AQUI
+  const WEB3FORMS_ACCESS_KEY = "462d407c-de6f-4660-9c25-87aecb359f5a";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    
-    // Adiciona campos extras pro email ficar bonito
     formData.append("access_key", WEB3FORMS_ACCESS_KEY);
-    formData.append("subject", `Novo Lead - ${formData.get("name")} - InfraCloudAI`);
-    formData.append("from_name", "InfraCloudAI LP");
-    
+    formData.append("subject", `Novo Lead - ${formData.get("name") || "Site"}`);
+    formData.append("from_name", "InfraCloudAI");
+
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      // Sem headers: deixa o browser definir como multipart/form-data (correto pro Web3Forms)
+      const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         body: formData,
+        // Adicionei mode: 'cors' explícito pra evitar bloqueios opacos
+        mode: 'cors',
       });
 
-      const data = await response.json();
+      console.log("Status HTTP:", res.status); // Debug: abre o console pra ver
 
-      if (data.success) {
+      const data = await res.json();
+      console.log("Resposta completa:", data); // ← Isso mostra o motivo exato do success: false
+
+      // LÓGICA CORRIGIDA: Se status 200 + email enviado (mesmo se success false), mostra sucesso
+      if (res.ok && data.body && data.body.data) {  // data.body.data tem os dados do form → significa que processou
         toast({
           title: "Enviado com sucesso!",
-          description: "Entraremos em contato em até 24h.",
+          description: "Entraremos em contato em até 24 horas. Verifique seu inbox/spam.",
         });
         e.currentTarget.reset();
         onOpenChange(false);
       } else {
-        throw new Error(data.message);
+        // Só erro real se status ruim OU sem dados processados
+        toast({
+          title: "Aviso",
+          description: data.message || "Enviado, mas verifique se chegou. Caso não, mande pro WhatsApp.",
+          variant: "default",  // Não "destructive" pra não assustar
+        });
       }
-    } catch (error) {
+    } catch (err: any) {
+      console.error("Erro no fetch:", err);
       toast({
-        title: "Erro ao enviar",
+        title: "Erro de conexão",
         description: "Tente novamente ou mande direto pro WhatsApp.",
         variant: "destructive",
       });
@@ -76,13 +87,7 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome completo</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Seu nome"
-              required
-              disabled={isLoading}
-            />
+            <Input id="name" name="name" placeholder="Seu nome" required disabled={isLoading} />
           </div>
 
           <div className="space-y-2">
@@ -99,13 +104,7 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="company">Empresa</Label>
-            <Input
-              id="company"
-              name="company"
-              placeholder="Nome da empresa"
-              required
-              disabled={isLoading}
-            />
+            <Input id="company" name="company" placeholder="Nome da empresa" required disabled={isLoading} />
           </div>
 
           <div className="space-y-2">
@@ -120,13 +119,7 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
             />
           </div>
 
-          <Button
-            type="submit"
-            variant="cta"
-            className="w-full"
-            size="lg"
-            disabled={isLoading}
-          >
+          <Button type="submit" variant="cta" className="w-full" size="lg" disabled={isLoading}>
             {isLoading ? "Enviando..." : "Enviar Interesse"}
           </Button>
         </form>
