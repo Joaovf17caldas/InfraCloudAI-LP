@@ -65,7 +65,7 @@ const Footer = () => {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 <a href="mailto:contato@infracloud.ai" className="hover:text-primary transition-colors">
-                  contato@infracloud.ai
+                  vaztisolutions@gmail.com
                 </a>
               </li>
             </ul>
