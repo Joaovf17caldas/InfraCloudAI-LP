@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* InfraCloud AI Brand Colors */
+    --background: 210 17% 98%; /* Light Gray #F8F9FA */
+    --foreground: 210 11% 15%; /* Dark text */
+
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 210 11% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 11% 15%;
+
+    --primary: 211 100% 50%; /* Blue Royal #007BFF */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 17% 95%;
+    --secondary-foreground: 210 11% 15%;
+
+    --muted: 210 17% 95%;
+    --muted-foreground: 210 11% 50%;
+
+    --accent: 134 61% 41%; /* Lime Green #28A745 for CTAs */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 17% 90%;
+    --input: 210 17% 90%;
+    --ring: 211 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradients and effects */
+    --gradient-primary: linear-gradient(135deg, hsl(211 100% 50%), hsl(211 100% 60%));
+    --gradient-hero: linear-gradient(180deg, hsl(210 17% 98%), hsl(0 0% 100%));
+    --shadow-card: 0 2px 8px -2px hsl(211 100% 50% / 0.08);
+    --shadow-hover: 0 8px 24px -4px hsl(211 100% 50% / 0.12);
+  }
+
+  .dark {
+    --background: 210 11% 8%;
+    --foreground: 0 0% 98%;
+    --card: 210 11% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 210 11% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 11% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 210 11% 15%;
+    --muted-foreground: 210 11% 65%;
+    --accent: 134 61% 41%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 11% 20%;
+    --input: 210 11% 20%;
+    --ring: 211 100% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
+  }
+}
