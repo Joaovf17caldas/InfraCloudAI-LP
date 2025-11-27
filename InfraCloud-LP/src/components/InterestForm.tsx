@@ -18,27 +18,49 @@ interface InterestFormProps {
 
 const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    phone: "",
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // MUDE APENAS ESTA LINHA COM SEU ACCESS KEY ↓↓↓
+  const WEB3FORMS_ACCESS_KEY = "462d407c-de6f-4660-9c25-87aecb359f5a"; // ← cole aqui
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Here you would typically send the data to your backend
-    console.log("Form submitted:", formData);
-    
-    toast({
-      title: "Obrigado pelo interesse!",
-      description: "Entraremos em contato em breve para apresentar a InfraCloud AI.",
-    });
+    setIsLoading(true);
 
-    // Reset form and close dialog
-    setFormData({ name: "", email: "", company: "", phone: "" });
-    onOpenChange(false);
+    const formData = new FormData(e.currentTarget);
+    
+    // Adiciona campos extras pro email ficar bonito
+    formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+    formData.append("subject", `Novo Lead - ${formData.get("name")} - InfraCloudAI`);
+    formData.append("from_name", "InfraCloudAI LP");
+    
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Enviado com sucesso!",
+          description: "Entraremos em contato em até 24h.",
+        });
+        e.currentTarget.reset();
+        onOpenChange(false);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao enviar",
+        description: "Tente novamente ou mande direto pro WhatsApp.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,12 +78,10 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
             <Label htmlFor="name">Nome completo</Label>
             <Input
               id="name"
+              name="name"
               placeholder="Seu nome"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -69,13 +89,11 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
             <Label htmlFor="email">E-mail corporativo</Label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="seu@email.com"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -83,12 +101,10 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
             <Label htmlFor="company">Empresa</Label>
             <Input
               id="company"
+              name="company"
               placeholder="Nome da empresa"
-              value={formData.company}
-              onChange={(e) =>
-                setFormData({ ...formData, company: e.target.value })
-              }
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -96,18 +112,22 @@ const InterestForm = ({ open, onOpenChange }: InterestFormProps) => {
             <Label htmlFor="phone">Telefone</Label>
             <Input
               id="phone"
+              name="phone"
               type="tel"
               placeholder="(00) 00000-0000"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
               required
+              disabled={isLoading}
             />
           </div>
 
-          <Button type="submit" variant="cta" className="w-full" size="lg">
-            Enviar Interesse
+          <Button
+            type="submit"
+            variant="cta"
+            className="w-full"
+            size="lg"
+            disabled={isLoading}
+          >
+            {isLoading ? "Enviando..." : "Enviar Interesse"}
           </Button>
         </form>
       </DialogContent>
